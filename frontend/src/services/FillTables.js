@@ -13,8 +13,17 @@ export default function FillTable(data){
     ]
 
     var rowData = []
-
-    if(typeof(data) === "object"){
+    if (data.constructor.name  === "Array"){
+        data.forEach(row => {
+            var rowLine = {"First Name": row["first_name"], 
+                        "Last Name": row["last_name"], 
+                        Probability: row["probability"]}
+            
+            // Add new line
+            rowData.push(rowLine) 
+        })
+    }
+    else if(typeof(data) === "object"){
         if (data.hasOwnProperty("first_name")){
             rowData = [{"First Name": data["first_name"], 
                         "Last Name": data["last_name"], 
@@ -22,16 +31,6 @@ export default function FillTable(data){
         }else{
             return "ERROR: Please review inputs"
         }
-
-    }else{
-        data.forEach(row => {
-            var rowLine = {"First Name": row["first_name"], 
-                        "Last Name": row["last_name"], 
-                        Probability: row["probability"]}
-            
-            // Add new line
-            rowData.append(rowLine) 
-        })
     }
 
     return (

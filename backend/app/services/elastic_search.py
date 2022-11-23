@@ -218,17 +218,18 @@ class ElasticSearchClient:
                                 "rescore_query": {
                                     "script_score": {
                                         "script": {
-                                            "source": "0.2"
-                                        },
-                                        "query": {
-                                            "match": {
+                                            "source": "return (doc['first_name.keyword'].value == params.first_name) ? 0.2: 0.15;", # noqa
+                                            "params": {
                                                 "first_name": first_name
                                             }
+                                        },
+                                        "query": {
+                                            "match_all": {}
                                         }
                                     }
                                 },
                                 "score_mode": "total",
-                                "query_weight": 0.4,
+                                "query_weight": 1,
                                 "rescore_query_weight": 1
                             }},
                         ]
@@ -252,7 +253,7 @@ class ElasticSearchClient:
         '''
         return await self.session.index(index=index, body=input_json)
 
-    async def update_bulk_entries(self, bulk_input_json: List[Dict]):
+    async def update_bulk_entries(self, index: str, bulk_input_json: List[Dict]):
         '''
             Update multiple documents in an index.
 
@@ -269,5 +270,10 @@ class ElasticSearchClient:
             message (dict): Success message
         '''
         # Bulk upload
-        helpers.bulk(self.session, bulk_input_json)
+        await helpers.async_bulk(self.session,
+                                 self.gendata(index, bulk_input_json))
         return {"Message": "Success"}
+
+    async def gendata(self, index: str, bulk_input_json: List):
+        for word in bulk_input_json:
+            yield {"_index": index, "doc": word}

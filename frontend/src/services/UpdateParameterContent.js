@@ -15,10 +15,13 @@ const getUploadIndividualParameters =()=>{
 }
 
 const getBulkUploadParameters =()=>{
+    const [fileInput, setFileInput] = []
+
     return (
         <ParameterContainer>
             <Header>Bulk Upload</Header>
-            <FileInput type="file"></FileInput>
+            <FileInput id="file-input" type="file" accept=".csv"></FileInput>
+            <p> <i>File format: csv (Columns: first_name, last_name, id, birthdate )</i></p>
         </ParameterContainer>
     )
 

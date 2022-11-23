@@ -1,21 +1,25 @@
 import FillTable from "./FillTables"
+import FileReader from "./FileReader"
 
 export default async function UpdateContent(e, setContent, displayContent){
+    // Prevent reload
+    e.preventDefault()
+
   switch(displayContent){
       case 'upload-individual':
-          return uploadIndividual(setContent)
+          return uploadIndividual(e, setContent)
 
       case 'bulk-upload':
-          return console.log("bulk upload to be done")
+          return await uploadBulk(e, setContent)
 
       case 'identify-individual':
-          return searchIndividual(setContent)
+          return searchIndividual(e, setContent)
 
       case 'identifier-settings':
           return console.log("identifier settings to be done")
 
       default:
-          return uploadIndividual(setContent)
+          return searchIndividual(e, setContent)
   }
 }
 
@@ -52,8 +56,11 @@ async function searchIndividual(e, setContent){
         }).
         then(resp => resp.json()).
         then(data =>{
+            console.log(data)
             JSONResult = FillTable(data)
             setContent(JSONResult)
+        }).catch(e =>{
+            setContent("ERROR: No individuals found.")
         })
 }
 
@@ -88,9 +95,37 @@ async function uploadIndividual(e, setContent){
               },
               body: JSON.stringify(JSONBody)
       }).
-      then(resp => resp.json()).
-      then(data =>{
-          JSONResult = FillTable(data)
-          setContent(JSONResult)
+      then(resp =>{
+          setContent(`${JSONBody["first_name"]} ${JSONBody["last_name"]}' details successfully loaded`)
+      }).catch(error =>{
+            setContent("ERROR: Could not load details. Please  check inputs.")
       })
 }
+
+async function uploadBulk(e, setContent){
+    e.preventDefault()
+
+    var fileInput = document.getElementById("file-input").files[0]
+
+    // Get parameters
+    var bulkUpload = await FileReader(fileInput)
+
+    // Make API Call
+    var JSONResult;
+    await fetch("http://127.0.0.1:8000/store_bulk", {
+                method: "POST",
+                mode: "cors",
+                credentials: 'same-origin', 
+                headers: {
+                  'Content-Type': 'application/json',
+                  "Accept": "*/*",
+                  "Access-Control-Allow-Origin": "*"
+                },
+                body: JSON.stringify({"entries": bulkUpload})
+        }).
+        then(resp => resp.json()).
+        then(data =>{
+            console.log(data)
+            setContent("Bulk upload succeeded")
+        })
+  }

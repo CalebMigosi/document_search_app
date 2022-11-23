@@ -31,7 +31,7 @@ async def update_single_entry(attributes: SingleIndividualAttributes):
 
 
 async def update_bulk_entries(attributes: BulkIndividualAttributes):
-    return await client.update_bulk_entries(INDEX_NAME, attributes.dict())
+    return await client.update_bulk_entries(INDEX_NAME, attributes.dict()["entries"]) # noqa
 
 
 async def update_matching_rule(matching_rule: MatchingRule):
