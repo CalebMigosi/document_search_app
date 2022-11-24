@@ -4,3 +4,4 @@ node_modules/
 logs/*
 backend/app/logs/*
 backend/scripts/logs/*
+**/__pycache__
