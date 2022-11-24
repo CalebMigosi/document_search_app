@@ -1,6 +1,6 @@
 node_modules/
 .venv/
 .env
-logs/
-backend/scripts/logs/
-backend/app/logs/
+logs/*
+backend/app/logs/*
+backend/scripts/logs/*
