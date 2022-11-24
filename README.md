@@ -12,7 +12,7 @@ To run this on Jenkins, you can add parameters to Jenkins secrets and run the `c
 ## Running on docker container in local machine
 
 ### Loading secrets
-To load all secrets, create a `.env` file like below. This should contain all the app secrets. I didn't have time to so sth detailed so I only used the bare minimum to run the application ie:
+To load all secrets, create a `.env` file like below. This file should go in the same directory as this README. This should contain all the app secrets. I didn't have time to so sth detailed so I only used the bare minimum to run the application ie:
 
 ```
 ####################################
@@ -28,6 +28,9 @@ ELASTIC_APM_SERVER_URL="http://apm-server:8200"
 #   TESTS
 ####################################
 TEST_INDEX_NAME="test_identity"
+TEST_ELASTIC_PORT="9200"
+TEST_ELASTIC_HOST="localhost"
+TEST_ELASTIC_APM_SERVER_URL="http://localhost:8200"
 ```
 
 ### Exposed ports
