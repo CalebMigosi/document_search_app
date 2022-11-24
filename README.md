@@ -45,6 +45,8 @@ If you want the logs printed out, you can run
 docker-compose up --build
 ```
 
+### Running Tests
+You may have to create a `log` folder in the scripts folder to run the backend. This seems to be a weird feature when testing apps with logs on FastAPI. Would love to look into it but I'm not sure what more I could do.
 
 ## Some justification for choices
 
