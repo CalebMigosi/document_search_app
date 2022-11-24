@@ -89,7 +89,7 @@ You may have to create a `log` folder in the scripts folder to run the backend. 
 
 ## Stuff I couldn't finish
 
-**1) Dynamic lastic `rescore` algorithm**
+**1) Dynamic elastic `rescore` algorithm**
 
 I wanted to finish this but it was late and I knew I would have trouble so I just did the first part to indicate that I could and left it at that.
 
