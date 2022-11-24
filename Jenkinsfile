@@ -20,7 +20,10 @@ pipeline{
         stage("Build containers"){
             steps{
                 echo 'Building the application'
-                sh "docker-compose up --build -d"
+                sh """chmod +x -R ${env.WORKSPACE}
+                      sudo usermod -aG docker jenkins
+                      sudo docker-compose up --build -d
+                    """
             }
         }
 
