@@ -21,7 +21,7 @@ To load all secrets, create a `.env` file like below. This file should go in the
 ELASTIC_PASSWORD="root"
 ELASTIC_PORT="9200"
 ELASTIC_HOST="elasticsearch"
-ELASTIC_INDEX_NAME="test_identity"
+ELASTIC_INDEX_NAME="identity"
 ELASTIC_APM_SERVER_URL="http://apm-server:8200"
 
 ####################################
@@ -32,6 +32,10 @@ TEST_ELASTIC_PORT="9200"
 TEST_ELASTIC_HOST="localhost"
 TEST_ELASTIC_APM_SERVER_URL="http://localhost:8200"
 ```
+
+### Loading the test Elasticsearch instance
+In the `scripts` folder in the `backend`, there is a `create_db.sh` file that can be run to create an elastic search instance. I used random names and IDs so creating an instance manually under the name test_identity should work fine as well.
+
 
 ### Exposed ports
 The exposed ports are `3000` for the front end, `8000` for the backend, `5601` for kibana and `9200` for elastic search.
