@@ -7,7 +7,14 @@ pipeline{
             steps{
                 echo "Inserting environment secrets into .env file"
                 echo "Running insert_secrets.sh"
-                sh "./scripts/insert_secrets.sh"
+                sh """
+                    chmod +x -R ${env.WORKSPACE}
+                    sudo apt-get update && sudo apt-get install -y curl
+                    sudo apt-get install python3.10
+                    curl -sSL https://install.python-poetry.org | python3
+                    cd backend
+                    $HOME/.local/bin/poetry run python ./app/config/create_env_file.py            
+                """
             }
         }
         stage("Build containers"){
@@ -20,10 +27,11 @@ pipeline{
         stage("Run tests"){
             steps{
                 echo "Create test elastic search db"
+                sh "chmod +x -R ${env.WORKSPACE}"
                 sh "./scripts/create_db.sh"
 
                 echo 'Testing the application'
-                sh "./scripts/run_tests.sh"
+                sh "./backend/scripts/run_tests.sh"
             }
         }
 
