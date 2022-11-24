@@ -15,8 +15,8 @@ class MatchedEntities(BaseModel):
 class IndividualAttributes(BaseModel):
     first_name: str
     last_name: str
-    birthdate: Optional[str] = "1900-01-01"
-    identification: Optional[str] = "000000000"
+    birthdate: Optional[str] = "0000-01-01"
+    identification: Optional[str] = "MISSING"
 
 
 class MatchingRule(BaseModel):

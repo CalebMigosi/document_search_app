@@ -19,7 +19,11 @@ pipeline{
 
         stage("Run tests"){
             steps{
+                echo "Create test elastic search db"
+                sh "./scripts/create_db.sh"
+
                 echo 'Testing the application'
+                sh "./scripts/run_tests.sh"
             }
         }
 

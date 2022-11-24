@@ -75,7 +75,10 @@ docker-compose up --build
 - I didn't really have time to look for anything else. Also, during the interview, I asked about this and Mindo & Andre explained that Redis wasn't heavily used so I went with ES default caching. It seems fairly powerful but I guess I would have to ask the guy that did it at Friss :) 
 
 **5) Config JSON**
-- This should probably go in mongo but I felt like this was a bit of overkill. Though definitely the configurations should be saved elsewhere aside from a JSON.
+- This was a first attempt at having dynamic matching rules. First principles thinking would mean defining the parameters we intend to modify before implementation. Going with JSON inherently means selecting mongodb as the choice for storing configs.
+
+**6) Logging**
+- I only used the loggers to catch errors. Maybe not the best approach but I honestly would love to learn more about this.
 
 ### Frontend
  **1) React over Vue**
@@ -84,7 +87,7 @@ docker-compose up --build
 
 ## Stuff I couldn't finish
 
-**1) Elastic `rescore` algorithm**
+**1) Dynamic lastic `rescore` algorithm**
 
 I wanted to finish this but it was late and I knew I would have trouble so I just did the first part to indicate that I could and left it at that.
 

@@ -26,7 +26,7 @@ def create_test_database():
     last_names = ["Jones", "Jiang", "Patel", "Singh", "Mwangi"]
 
     names = [name for name in product(first_names, last_names)]
-    ids = random.randint(100000000, 999999999, size=(len(names)))
+    ids = [i for i in range(len(names))]
     dates = [datetime.today() - timedelta(days=random.randint(5000, 10000))
              for i in range(len(ids))]
 

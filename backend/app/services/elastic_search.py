@@ -1,3 +1,4 @@
+import logging
 from elasticsearch import AsyncElasticsearch, helpers
 from typing import Union, Dict, List
 from models.check import MatchedEntity, MatchedEntities
@@ -12,6 +13,7 @@ class ElasticSearchClient:
     '''
     def __init__(self, session: AsyncElasticsearch):
         self.session = session
+        self.logger = logging.getLogger("services")
 
     async def search_identity(self, index: str, input_json: dict) -> Union[List, List[Dict]]: # noqa
         '''
@@ -35,13 +37,20 @@ class ElasticSearchClient:
         rescore_query = await self.get_rescore_query(input_json)
 
         # Build ES query from input_query. Use default ES caching
+
         response = await self.session.search(index=index,
                                              query=query,
                                              rescore=rescore_query,
                                              request_cache=True)
+        if "hits" in response:
+            # Get all hits
+            hits = response["hits"]["hits"]
+        else:
+            self.logger.warning(f"""\n\nSearch query got no hits.\n
+                                    \nINPUT: {input_json}\n) # noqa""")
 
-        # Get all hits
-        hits = response["hits"]["hits"]
+            # Return no entries
+            hits = []
 
         return hits
 
@@ -62,22 +71,26 @@ class ElasticSearchClient:
         # Search for identities from elastic search
         hits = await self.search_identity(index, input_json)
 
-        # Output list from list
-        max_score = hits[0]["_score"]
+        if hits != []:
+            # Output list from list
+            max_score = hits[0]["_score"]
 
-        # Parse matches to model
-        result_list = []
-        for hit in hits:
-            if hit["_score"] == max_score:
-                model_dict = {"first_name": hit["_source"]["first_name"],
-                              "last_name": hit["_source"]["last_name"],
-                              "probability": hit["_score"]}
+            # Parse matches to model
+            result_list = []
+            for hit in hits:
+                if hit["_score"] == max_score:
+                    model_dict = {"first_name": hit["_source"]["first_name"],
+                                  "last_name": hit["_source"]["last_name"],
+                                  "probability": hit["_score"]}
 
-                # Parse dict to models
-                model = MatchedEntity.parse_obj(model_dict)
-                result_list.append(model)
+                    # Parse dict to models
+                    model = MatchedEntity.parse_obj(model_dict)
+                    result_list.append(model)
 
-        result = result_list if len(result_list) > 1 else result_list[0]
+            result = result_list if len(result_list) > 1 else result_list[0]
+        else:
+            self.logger.warning(f"Single entry upload failed.\n\nQUERY\n:{input_json}") # noqa
+            result = []
 
         return result
 
@@ -111,26 +124,29 @@ class ElasticSearchClient:
                             "last_name": last_name
                         }
                     },
-                    "should": [
-                        {
-                            "match": {
-                                "birthdate": birthdate
-                            }
-                        },
-                        {
+                    "should": {
                             "match": {
                                 "identification": identification
                             }
+                    },
+                    "filter": [
+                        {
+                            "regexp": {
+                                "first_name.keyword": {
+                                    "value": f"{first_name[0]}.*",
+                                    "flags": "ALL"
+                                    }
+                                }
+                        },
+                        {
+                            "range": {
+                                "birthdate": {
+                                    "gte": "0000-01-01" if birthdate == "0000-01-01" else f"{birthdate}", # noqa
+                                    "lte": "now" if birthdate == "0000-01-01" else f"{birthdate}" # noqa
+                                    }
+                                }
                         }
                     ],
-                    "filter": {
-                        "regexp": {
-                            "first_name.keyword": {
-                                "value": f"{first_name[0]}.*",
-                                "flags": "ALL"
-                                }
-                            }
-                    },
                     "boost": 0
                 }
             }
@@ -184,6 +200,24 @@ class ElasticSearchClient:
                                 "rescore_query": {
                                     "script_score": {
                                         "script": {
+                                            "source": "return (doc['first_name.keyword'].value == params.first_name) ? 0.2: 0.15;", # noqa
+                                            "params": {
+                                                "first_name": first_name
+                                            }
+                                        },
+                                        "query": {
+                                            "match_all": {}
+                                        }
+                                    }
+                                },
+                                "score_mode": "total",
+                                "query_weight": 1,
+                                "rescore_query_weight": 1
+                            }},
+                            {"query": {
+                                "rescore_query": {
+                                    "script_score": {
+                                        "script": {
                                             "source": "1"
                                         },
                                         "query": {
@@ -213,25 +247,7 @@ class ElasticSearchClient:
                                 "score_mode": "max",
                                 "query_weight": 1,
                                 "rescore_query_weight": 1
-                            }},
-                            {"query": {
-                                "rescore_query": {
-                                    "script_score": {
-                                        "script": {
-                                            "source": "return (doc['first_name.keyword'].value == params.first_name) ? 0.2: 0.15;", # noqa
-                                            "params": {
-                                                "first_name": first_name
-                                            }
-                                        },
-                                        "query": {
-                                            "match_all": {}
-                                        }
-                                    }
-                                },
-                                "score_mode": "total",
-                                "query_weight": 1,
-                                "rescore_query_weight": 1
-                            }},
+                            }}
                         ]
 
         return rescore_query
@@ -251,9 +267,12 @@ class ElasticSearchClient:
             ---------------
             result (dict): result dictionary
         '''
-        return await self.session.index(index=index, body=input_json)
+        try:
+            return await self.session.index(index=index, body=input_json)
+        except Exception as e:
+            self.logger.error(f"""\n\nSingle entry upload failed.\n\n{e}\n\n""", exc_info=True) # noqa
 
-    async def update_bulk_entries(self, index: str, bulk_input_json: List[Dict]):
+    async def update_bulk_entries(self, index: str, bulk_input_json: List[Dict]): # noqa
         '''
             Update multiple documents in an index.
 
@@ -269,10 +288,13 @@ class ElasticSearchClient:
             ---------------
             message (dict): Success message
         '''
-        # Bulk upload
-        await helpers.async_bulk(self.session,
-                                 self.gendata(index, bulk_input_json))
-        return {"Message": "Success"}
+        try:
+            # Bulk upload
+            await helpers.async_bulk(self.session,
+                                     self.gendata(index, bulk_input_json))
+            return {"Message": "Success"}
+        except Exception as e:
+            self.logger.error(f"""\n\nSingle entry upload failed.\n\n{e}\n\n""", exc_info=True) # noqa
 
     async def gendata(self, index: str, bulk_input_json: List):
         for word in bulk_input_json:
