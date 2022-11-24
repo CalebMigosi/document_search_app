@@ -1,2 +1,0 @@
-2022-11-23 13:22:06,186 loglevel=ERROR  logger=endpoints:search_user_in_es() L32   Connection error caused by: ConnectionError(Connection error caused by: ClientConnectorError(Cannot connect to host elasticsearch:9200 ssl:default [Temporary failure in name resolution]))
-2022-11-23 13:22:10,672 loglevel=ERROR  logger=endpoints:search_user_in_es() L32   Connection error caused by: ConnectionError(Connection error caused by: ClientConnectorError(Cannot connect to host elasticsearch:9200 ssl:default [Temporary failure in name resolution]))

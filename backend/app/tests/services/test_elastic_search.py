@@ -183,7 +183,7 @@ async def test_single_upload():
                 "identification": "0000",
                 "birthdate": "2000-01-01"
             }
-   
+ 
     # Search for item
     result = await es_client.get_top_search_names_and_probabilities(TEST_INDEX_NAME, input_json) # noqa
     assert (type(result) == MatchedEntity) or (type(result[0]) == MatchedEntity) # noqa

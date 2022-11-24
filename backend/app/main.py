@@ -1,15 +1,21 @@
+import os
 import sys
 import logging
 import logging.config
 import uvicorn
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.routers.store import store
 from api.routers.check import check
 from elasticapm.contrib.starlette import ElasticAPM, make_apm_client
 
+# Load environment variables (Different for tests)
+load_dotenv()
+APM_URL = os.getenv("ELASTIC_APM_SERVER_URL")
 
-def create_app():
+
+def create_app(apm_url=APM_URL):
     '''
         Factory method for creating app to deal with potential proxy redirects
         and to define bespoke features elsewhere other than on main.
@@ -17,13 +23,16 @@ def create_app():
         Unnecessary but I also wanted to have a clean log when the app loads.
     '''
     try:
+        log_config_path = os.path.abspath(os.path.join(__file__,
+                                          os.pardir, "config", "logging.conf"))
+
         # Load logger
-        logging.config.fileConfig("./config/logging.conf")
+        logging.config.fileConfig(log_config_path)
         logger = logging.getLogger("root")
 
         # Create elastic APM client
         apm = make_apm_client(
-            {"SERVICE_NAME": "fastapi-app", "SERVER_URL": "http://apm-server:8200"} # noqa
+            {"SERVICE_NAME": "fastapi-app", "SERVER_URL": APM_URL} # noqa
         )
 
         app = FastAPI()
