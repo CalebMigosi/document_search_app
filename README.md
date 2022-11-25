@@ -72,7 +72,7 @@ You may have to create a `log` folder in the scripts folder to run the backend. 
 ### Backend
 
  **1) Elastic Search**
- - We spoke a bit about this in the interview so I decided to try it out. I've seen that there were other options like FTS in PostgreSQL but I wanted to remain consistent with the stack used at FRISS for this specific part.
+ - We spoke a bit about this in the interview so I decided to try it out. I've seen that there were other options like FTS in PostgreSQL but I wanted to try Elastic Search specifically.
 
  **2) Poetry over pip**
  - I wanted to try to use poetry in Docker as opposed to pip just to be sure that I could handle it. I have never used poetry and was looking for an opportunity to do so.
@@ -81,7 +81,7 @@ You may have to create a `log` folder in the scripts folder to run the backend. 
 - Newer, faster and more lightweight framework. Also have never really used dependencies and I think this was a great intro to the former.
 
 **4) ES Caching**
-- I didn't really have time to look for anything else. Also, during the interview, I asked about this and Mindo & Andre explained that Redis wasn't heavily used so I went with ES default caching. It seems fairly powerful but I guess I would have to ask the guy that did it at Friss :) 
+- I didn't really have time to look for anything else. Should probably check some Redis features, 
 
 **5) Config JSON**
 - This was a first attempt at having dynamic matching rules. First principles thinking would mean defining the parameters we intend to modify before implementation. Going with JSON inherently means selecting mongodb as the choice for storing configs.
