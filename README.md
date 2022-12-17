@@ -72,7 +72,7 @@ You may have to create a `log` folder in the scripts folder to run the backend. 
 ### Backend
 
  **1) Elastic Search**
- - We spoke a bit about this in the interview so I decided to try it out. I've seen that there were other options like FTS in PostgreSQL but I wanted to try Elastic Search specifically.
+ - I've seen that there were other options like FTS in PostgreSQL but I wanted to try Elastic Search specifically.
 
  **2) Poetry over pip**
  - I wanted to try to use poetry in Docker as opposed to pip just to be sure that I could handle it. I have never used poetry and was looking for an opportunity to do so.
